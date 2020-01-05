@@ -8,8 +8,12 @@ sudo ./guac-install.sh
 
 #once done, browse to page on  http://[IP]:8080/guacamole/  and reset default creds; guacadmin:guacadmin
 
+#temporarily disable two-factor authentication
+sudo mv /etc/guacamole/guacamole-auth-totp-1.0.0.jar /etc/guacamole/guacamole-auth-totp-1.0.0.jar.bk
+sudo service tomcat8 restart
+
 #Customization of pages:
-sudo nano /var/lib/tomcat8/webapps/guacamole/translations/en.json
+sudo vim /var/lib/tomcat8/webapps/guacamole/translations/en.json
 #change variables you want, like version number and headings
 
 #Final user-mapping file:   (Use the web-GUI to configure if possible)
@@ -47,7 +51,7 @@ cd /etc/nginx
 sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/cert.key -out /etc/nginx/cert.crt
 
 sudo mv /etc/nginx/sites-enabled/default /etc/nginx/sites-enabled/mysite.com
-sudo nano /etc/nginx/sites-enabled/mysite.com
+sudo vim /etc/nginx/sites-enabled/mysite.com
 
 #use this example:
 server {
@@ -100,14 +104,14 @@ sudo systemctl enable nginx  #persist through reboot
 
 
 #Customize Guac login page:
-nano /var/lib/tomcat8/webapps/guacamole/translations/en.json
+sudo vim /var/lib/tomcat8/webapps/guacamole/translations/en.json
 
 
 #secure the guac host with a host-based firewall! use whatever you want, ufw shown
 sudo ufw reset
-sudo ufw allow in 22/tcp
-sudo ufw allow in 443/tcp
-#sudo ufw allow in 3389/tcp
+sudo ufw allow in 22/tcp (ipv4+6)
+sudo ufw allow proto tcp to 0.0.0.0/0 port 443 (only ipv4)
+sudo ufw allow proto tcp to 0.0.0.0/0 port 80 (only ipv4)
 #sudo ufw default allow outgoing
 #sudo ufw default deny incoming
 #sudo ufw status numbered
@@ -189,20 +193,20 @@ cd /
 
 #for lubuntu GUI:
 sudo apt install lubuntu-desktop
-sudo nano /etc/xrdp/startwm.sh
+sudo vim /etc/xrdp/startwm.sh
 ##last like should look like....#   /etc/X11/Xsession
 
 cd ~ #(browse to home directory of user you'l log into)
-sudo nano .xsession    #create if none exists       ##this step may not be necessary depending on distro
+sudo vim .xsession    #create if none exists       ##this step may not be necessary depending on distro
 #add this line# lxsession -e LXDE -s Lubuntu
 sudo service xrdp restart
 sudo systemctl enable xrdp   #persist through reboots
 
 
-		#for xfce4:   (slower)
+		#for xfce4:
 		#sudo echo xfce4-session >~/.xsession
 
-		#sudo nano /etc/xrdp/startwm.sh
+		#sudo vim /etc/xrdp/startwm.sh
 		## add thes lines to bottom:  
 		#echo xfce4-session >~/.xsession
 		#startxfce4
@@ -224,13 +228,13 @@ sudo chsh -s /bin/bash user
 sudo systemctl enable xrdp-sesman
 update-alternatives --config x-session-manager   #choose /usr/bin/startlxde, or whichever you want
 
-nano /etc/X11/Xwrapper.config 
+sudo vim /etc/X11/Xwrapper.config 
 # allowed_users=anybody
 
-sudo nano /etc/xrdp/xrdp.ini
+sudo vim /etc/xrdp/xrdp.ini
 # max_bpp=16
 
-reboot
+sudo service xrdp restart
 
 ##test it!
 xfreerdp -u user -size 800x600 -v XX.XX.XX.XX
@@ -251,7 +255,7 @@ mkdir /etc/ssh/default_keys
 mv /etc/ssh/ssh_host_* /etc/ssh/default_keys/
 #regen keys
 dpkg-reconfigure openssh-server
-nano /etc/ssh/sshd_config
+vim /etc/ssh/sshd_config
 # PasswordAuthentication yes
 # PermitRootLogin yes
 systemctl enable ssh.service #persist through reboots
