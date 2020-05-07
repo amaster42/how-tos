@@ -6,17 +6,21 @@
 #
 
 if ! [ $(id -u) = 0 ]; then
-   echo "[+] Sorry dude, this script needs to be run as sudo or root... [+]"
-   echo "[+] Exiting now.                                               [+]"
-   exit 1
+  echo "[+] Sorry dude, this script needs to be run as sudo or root... [+]"
+  echo "[+] Exiting now.                                               [+]"
+  exit 1
 fi
 
 cd /tmp
 
 echo "[+] System update and adding dependencies                      [+]"
+distro=$(uname -a | awk '{print $2}')
+if [ $distro == 'kali' ]; then
+  DEBIAN_FRONTEND=noninteractive apt-get remove --purge -y -q king-phisher #problematic update package sometimes
+fi
 apt-get update
-DEBIAN_FRONTEND=noninteractive apt-get -q -y upgrade
-DEBIAN_FRONTEND=noninteractive apt-get -q -y install uuid-runtime
+DEBIAN_FRONTEND=noninteractive apt-get -y -q upgrade
+DEBIAN_FRONTEND=noninteractive apt-get -y -q install uuid-runtime
 
 echo "[+] Installing guacamole...                                    [+]"
 wget https://raw.githubusercontent.com/MysticRyuujin/guac-install/master/guac-install.sh
@@ -34,7 +38,7 @@ rm guac-install.sh
 #sudo service tomcat* restart
 
 #TODO reverse proxy and https certs
-apt-get -q -y install nginx
+apt-get -y -q install nginx
 #SSL and https, self-signed first:
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -subj "/C=US/ST=CA/L=LA/O=AcmeInc. /OU=ITDept/CN=acme.com" -keyout /etc/nginx/cert.key -out /etc/nginx/cert.crt
 #edit nginx config here
