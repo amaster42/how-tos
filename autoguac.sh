@@ -16,10 +16,12 @@ cd /tmp
 echo "[+] System update and adding dependencies                      [+]"
 distro=$(uname -a | awk '{print $2}')
 if [ $distro == 'kali' ]; then
-  DEBIAN_FRONTEND=noninteractive apt-get remove --purge -y -q king-phisher #problematic update package sometimes
+  echo "removing problematic package... "
+  DEBIAN_FRONTEND=noninteractive apt-get remove --purge -y -q king-phisher 1>/dev/null #problematic update package sometimes
 fi
 apt-get update
-DEBIAN_FRONTEND=noninteractive apt-get -y -q upgrade
+echo "Upgrading system packages and adding any needed dependencies... "
+DEBIAN_FRONTEND=noninteractive apt-get -y -q upgrade 1>/dev/null 
 DEBIAN_FRONTEND=noninteractive apt-get -y -q install uuid-runtime
 
 echo "[+] Installing guacamole...                                    [+]"
