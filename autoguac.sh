@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Designed for debian systems, thoroughly tested on Ubuntu 18.04 LTS
+# Designed for debian systems, thoroughly tested on Ubuntu 18.04 LTS and kali 2020.1
 # Credit goes to Chase Wright for the intial unsecured install of apache guacamole; please support his work
 # https://github.com/MysticRyuujin
 #
@@ -16,7 +16,7 @@ cd /tmp
 echo "[+] System update and adding dependencies                      [+]"
 distro=$(uname -a | awk '{print $2}')
 if [ $distro == 'kali' ]; then
-  echo "removing problematic package... "
+  echo "removing problematic package(s)... "
   DEBIAN_FRONTEND=noninteractive apt-get remove --purge -y -q king-phisher 1>/dev/null #problematic update package sometimes
 fi
 apt-get update
@@ -35,11 +35,11 @@ dbuserdbpass=$(cat /root/dbpass)
 rm guac-install.sh
 #sudo rm /root/dbpass
 
-#temporarily disable 2FA 
+#temporarily disable 2FA - often not needed with updated installer
 #sudo mv /etc/guacamole/guacamole-auth-totp-* /etc/guacamole/guacamole-auth-totp.bk
 #sudo service tomcat* restart
 
-#TODO reverse proxy and https certs
+#implement reverse proxy and https certs
 apt-get -y -q install nginx
 #SSL and https, self-signed first:
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -subj "/C=US/ST=CA/L=LA/O=AcmeInc. /OU=ITDept/CN=acme.com" -keyout /etc/nginx/cert.key -out /etc/nginx/cert.crt
@@ -110,3 +110,7 @@ EOF2
 nginx -t   ##test to see if config is successful; if not, hunt down errors
 systemctl restart nginx
 systemctl enable nginx  #persist through reboot
+echo "[+] Remember to login to the HTTPS web console and             [+]"
+echo "[+] change gaucadmin:gaucadmin creds!                          [+]"
+echo ""
+echo "[+] Have fun!                                                  [+]"
