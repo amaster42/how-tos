@@ -39,6 +39,10 @@ rm guac-install.sh
 #sudo mv /etc/guacamole/guacamole-auth-totp-* /etc/guacamole/guacamole-auth-totp.bk
 #sudo service tomcat* restart
 
+#Customization of pages:
+#sudo vim /var/lib/tomcat8/webapps/guacamole/translations/en.json
+#change variables you want, like version number and headings
+
 #implement reverse proxy and https certs
 apt-get -y -q install nginx
 #SSL and https, self-signed first:
@@ -110,7 +114,58 @@ EOF2
 nginx -t   ##test to see if config is successful; if not, hunt down errors
 systemctl restart nginx
 systemctl enable nginx  #persist through reboot
+#browse to https://[IP]/guac/       to test
 echo "[+] Remember to login to the HTTPS web console and             [+]"
 echo "[+] change gaucadmin:gaucadmin creds!                          [+]"
 echo ""
 echo "[+] Have fun!                                                  [+]"
+
+
+#Other notes:
+
+#secure the guac host with a host-based firewall! use whatever you want, ufw shown
+#sudo ufw reset
+#sudo ufw allow in 22/tcp (ipv4+6)
+#sudo ufw allow proto tcp to 0.0.0.0/0 port 443 (only ipv4)
+#sudo ufw allow proto tcp to 0.0.0.0/0 port 80 (only ipv4)
+#sudo ufw default allow outgoing
+#sudo ufw default deny incoming
+#sudo ufw status numbered
+#sudo ufw delete 2     #deletes second rule
+#sudo ufw enable
+#sudo ufw status
+#sudo ufw disable
+
+
+
+#Now do LetsEncrypt for SSL certs, they're free - certbox makes it easy, or do them manually. Make sure port 80 is temporarily open
+#https://letsencrypt.org/getting-started/
+
+
+#Add connections in GUI of Guacamole when possible.
+
+##use these for reference if needed though-
+#user-mapping file
+#/etc/guacamole/user-mapping.xml
+#<user-mapping>
+#
+#    <authorize 
+#            username="pabloesc"
+#            password="4f4c4d23c136d24efc2fd904966c35ac"
+#           encoding="md5">
+#  <connection name="Linux">
+#        <protocol>rdp</protocol>
+#        <param name="hostname">localhost</param>
+#        <param name="port">3389</param>
+#        </connection>
+#  <connection name="Windows 10">
+#        <protocol>rdp</protocol>
+#        <param name="hostname">10.0.0.52</param>
+#        <param name="port">3389</param>
+#        <param name="security">tls</param>
+#        <param name="ignore-cert">true</param>
+#  <param name="enable-wallpaper">true</param>
+#        </connection>
+#    </authorize>
+#
+#</user-mapping>
