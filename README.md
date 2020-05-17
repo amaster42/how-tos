@@ -1,1 +1,1 @@
-# how-tos
+# scripts to make life easier. 
