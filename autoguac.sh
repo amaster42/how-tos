@@ -115,6 +115,7 @@ nginx -t   ##test to see if config is successful; if not, hunt down errors
 systemctl restart nginx
 systemctl enable nginx  #persist through reboot
 #browse to https://[IP]/guac/       to test
+echo ""
 echo "[+] Remember to login to the HTTPS web console and             [+]"
 echo "[+] change gaucadmin:gaucadmin creds!                          [+]"
 echo ""
