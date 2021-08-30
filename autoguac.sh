@@ -1,43 +1,40 @@
 #!/bin/bash
 
-# Designed for debian systems, thoroughly tested on Ubuntu 18.04 LTS and kali 2020.1
+# Designed for debian systems, thoroughly tested on Ubuntu 18.04 LTS
 # Credit goes to Chase Wright for the intial unsecured install of apache guacamole; please support his work
 # https://github.com/MysticRyuujin
 #
 
 if ! [ $(id -u) = 0 ]; then
-  echo "[+] Sorry dude, this script needs to be run as sudo or root... [+]"
-  echo "[+] Exiting now.                                               [+]"
+  echo "[+] Sorry dude, this needs to be run as sudo or root...      [+]"
+  echo "[+] Exiting now.                                             [+]"
   exit 1
 fi
 
 cd /tmp
+echo "[+] AUTOGUAC! Apache Guacamole Installer script              [+]"
+echo ""
+echo ""
 
-echo "[+] System update and adding dependencies                      [+]"
-distro=$(uname -a | awk '{print $2}')
-if [ $distro == 'kali' ]; then
-  echo "removing problematic package(s)... "
-  DEBIAN_FRONTEND=noninteractive apt-get remove --purge -y -q king-phisher 1>/dev/null #problematic update package sometimes
-fi
-apt-get update
-echo "Upgrading system packages and adding any needed dependencies... "
+echo "[+] Repo updates...                                          [+]"
+DEBIAN_FRONTEND=noninteractive apt-get -y -q update 1>/dev/null
+echo ""
+
+echo "[+] Upgrading packages and adding any needed dependencies... [+]"
 DEBIAN_FRONTEND=noninteractive apt-get -y -q upgrade 1>/dev/null 
-DEBIAN_FRONTEND=noninteractive apt-get -y -q install uuid-runtime
+DEBIAN_FRONTEND=noninteractive apt-get -y -q install uuid-runtime 1>/dev/null
 
-echo "[+] Installing guacamole...                                    [+]"
+echo "[+] Installing guacamole...                                  [+]"
 wget https://raw.githubusercontent.com/MysticRyuujin/guac-install/master/guac-install.sh
 chmod +x guac-install.sh
 #answer the prompts     #TODO automate the answers, or leave the auto-install params below
-uuidgen >> /root/dbpass
-dbuserdbpass=$(cat /root/dbpass)
-./guac-install.sh --mysqlpwd $dbuserdbpass --guacpwd $dbuserdbpass --nomfa --installmysql
+mkdir /root/.guac
+uuidgen >> /root/.guac/dbpass
+dbuserdbpass=$(cat /root/.guac/dbpass)
+./guac-install.sh --mysqlpwd $dbuserdbpass --guacpwd $dbuserdbpass --totp --installmysql
 #cleanup
 rm guac-install.sh
-#sudo rm /root/dbpass
-
-#temporarily disable 2FA - often not needed with updated installer
-#sudo mv /etc/guacamole/guacamole-auth-totp-* /etc/guacamole/guacamole-auth-totp.bk
-#sudo service tomcat* restart
+#sudo rm /root/.guac/dbpass
 
 #Customization of pages:
 #sudo vim /var/lib/tomcat8/webapps/guacamole/translations/en.json
@@ -116,10 +113,13 @@ systemctl restart nginx
 systemctl enable nginx  #persist through reboot
 #browse to https://[IP]/guac/       to test
 echo ""
-echo "[+] Remember to login to the HTTPS web console and             [+]"
-echo "[+] change gaucadmin:gaucadmin creds!                          [+]"
 echo ""
-echo "[+] Have fun!                                                  [+]"
+echo "[+] Remember to login to the HTTPS web console and           [+]"
+echo "[+] change the gaucadmin:gaucadmin creds!                    [+]"
+echo ""
+echo "https://[IP]/guac/"
+echo ""
+echo "[+] Have fun!                                                [+]"
 
 
 #Other notes:
@@ -170,3 +170,19 @@ echo "[+] Have fun!                                                  [+]"
 #    </authorize>
 #
 #</user-mapping>
+
+
+
+#--------------------------------------------------------------------------------------------------
+#depricated code
+
+#distro=$(uname -a | awk '{print $2}')
+#if [ $distro == 'kali' ]; then
+#  echo "removing problematic package(s)... "
+#  DEBIAN_FRONTEND=noninteractive apt-get remove --purge -y -q king-phisher 1>/dev/null #problematic update package sometimes
+#fi
+
+
+#temporarily disable 2FA - often not needed with updated installer
+#sudo mv /etc/guacamole/guacamole-auth-totp-* /etc/guacamole/guacamole-auth-totp.bk
+#sudo service tomcat* restart
