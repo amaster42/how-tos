@@ -23,6 +23,7 @@ echo ""
 echo "[+] Upgrading packages and adding any needed dependencies... [+]"
 DEBIAN_FRONTEND=noninteractive apt-get -y -q upgrade 1>/dev/null 
 DEBIAN_FRONTEND=noninteractive apt-get -y -q install uuid-runtime 1>/dev/null
+add-apt-repository -y -s "deb http://archive.ubuntu.com/ubuntu/ jammy main universe" # temporary fix for tomcat9
 
 echo "[+] Installing guacamole...                                  [+]"
 wget https://raw.githubusercontent.com/MysticRyuujin/guac-install/master/guac-install.sh
